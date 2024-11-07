@@ -17,7 +17,7 @@
 ## Getting Started <a name = "getting_started"></a>
 
 1. Download & install [Lune](https://lune-org.github.io/docs).
-2. Run `git clone <TO_INSERT>`
+2. Run `git clone https://github.com/ItsRune/RobloxObbyGenerator`
 3. Open terminal/command prompt and navigate to the path of the cloned repository.
 4. Run `lune run cli.luau`
 
