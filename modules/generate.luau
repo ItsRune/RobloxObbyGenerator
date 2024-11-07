@@ -107,6 +107,36 @@ local function createInstanceBasedOnFile(path: string, service: string?, parent:
 end
 
 --[=[
+	Checks for the keys within `robloxFileTypeEquivalent` for a match on the file's suffix.
+	@param files { string }
+	@return (boolean, string?)
+
+	```lua
+	local files = { "init.luau", "SomethingElse.lua" }
+	local isInitFile = checkForInitFile(files) --> true, init.luau
+
+	local files2 = { "notInit.luau", "SomethingElse.lua" }
+	local isInitFile2 = checkForInitFile(files2) --> false, nil
+	```
+]=]
+local function checkForInitFile(files: { string }): (boolean, string?)
+	local Keys = Table.Keys(robloxFileTypeEquivalent)
+	for _, file in files do
+		local split = string.split(file, ".")
+		local suffix = "." .. table.concat(split, ".", 2, #split)
+		if string.lower(split[1]) ~= "init" then
+			continue
+		end
+
+		if table.find(Keys, suffix) then
+			return true, file
+		end
+	end
+
+	return false
+end
+
+--[=[
 	Traverses the code directory for .lua/.luau files then creates a Server/Local/Module script based on the suffix.
 	@param path string
 	@param service string?
@@ -121,7 +151,7 @@ end
 local function traverseCodeDirectories(path: string, service: string?, parent: roblox.Instance?): roblox.Instance?
 	local isDir = fs.isDir(path)
 	local files = isDir and fs.readDir(path) or {}
-	local includesInitFile = (table.find(files, "init.lua") or table.find(files, "init.luau"))
+	local includesInitFile, initFileName = checkForInitFile(files)
 	local split = string.split(path, "/")
 
 	if not service then
@@ -133,13 +163,11 @@ local function traverseCodeDirectories(path: string, service: string?, parent: r
 	end
 
 	if includesInitFile then
-		local suffix = table.find(files, "init.luau") and ".luau" or ".lua"
-
 		if Settings.showDebugMessages then
-			print("Generating 'init." .. suffix .. "' at path '" .. path .. "'")
+			print("Generating '" .. tostring(initFileName) .. "' at path '" .. path .. "'")
 		end
 
-		local Inst = createInstanceBasedOnFile(path .. "/init" .. suffix, service, parent)
+		local Inst = createInstanceBasedOnFile(path .. "/" .. tostring(initFileName), service, parent)
 
 		if Inst then
 			Inst.Name = split[#split] -- Make the script the name of the folder.

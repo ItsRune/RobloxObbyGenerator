@@ -29,6 +29,8 @@ Please select the generation type you'd like to use:
  - Generate & Publish
 ```
 
+Please note, at the time of writing this `Generate & Publish` is not fully implemented and may not work.
+
 ## Additionall
 
 If you import a module and the type checker is on your butt, you can use the module `tools/applyLinterIgnoreToFolder.luau` to recursively apply ignore rules to every file.
