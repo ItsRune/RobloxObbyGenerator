@@ -1,12 +1,13 @@
 local roblox = require("@lune/roblox")
 local fs = require("@lune/fs")
+
 local generateBasedOffMode = require("generateBasedOffMode")
 local Table = require("table-util")
-
 local quickTypes = require("quickTypes")
-local Settings: quickTypes.settings
+local syncWithRobloxFromConfigLanguage = require("syncJSONWithRoblox")
 
-local fileSuffix, fileName, fullFileName
+local Settings: quickTypes.settings
+local fileSuffix: string, fileName: string, fullFileName: string
 
 local Ignored = {}
 local placeFile = fs.readFile("./Baseplate.rbxl")
@@ -90,12 +91,11 @@ local function createInstanceBasedOnFile(path: string, service: string?, parent:
 	local split = string.split(path, "/")
 	local pathSplit = string.split(split[#split], ".")
 	local fileSuffix = "." .. table.concat(pathSplit, ".", 2, #pathSplit)
-
 	local robloxClassName = robloxFileTypeEquivalent[fileSuffix]
+
 	if not robloxClassName then
-		Ignored[fileSuffix] = Ignored[fileSuffix] or 0
-		Ignored[fileSuffix] += 1
-		-- print("Ignored: Expected .lua or .luau file suffix, received '" .. fileSuffix .. "'!")
+		Ignored[fileSuffix] = Ignored[fileSuffix] or {}
+		table.insert(Ignored[fileSuffix], path)
 		return nil
 	end
 
@@ -168,12 +168,10 @@ local function traverseCodeDirectories(path: string, service: string?, parent: r
 		end
 
 		local Inst = createInstanceBasedOnFile(path .. "/" .. tostring(initFileName), service, parent)
-
 		if Inst then
 			Inst.Name = split[#split] -- Make the script the name of the folder.
+			parent = Inst
 		end
-
-		parent = Inst
 	end
 
 	if isDir then
@@ -221,7 +219,7 @@ local function traverseCodeDirectories(path: string, service: string?, parent: r
 	end
 
 	if Settings.showDebugMessages then
-		print("Generating lua file at path '" .. path .. "'")
+		print("Generating '" .. split[#split] .. "' at path '" .. path .. "'")
 	end
 
 	return createInstanceBasedOnFile(path, service, parent)
@@ -237,8 +235,21 @@ local function handler(_Settings: quickTypes.settings)
 	print(string.format("Generated '%s' at path '%s'...", fullFileName, "./output/" .. fullFileName))
 
 	if Settings.showDebugMessages and Table.Count(Ignored) > 0 then
-		Table.ForEach(Ignored, function(count, index)
-			print(string.format("Ignored %d files ending in '%s'.", count, index))
+		local allowed = { ".json", ".yaml", ".toml" }
+
+		Table.ForEach(Ignored, function(paths, fileSuffix)
+			if table.find(allowed, fileSuffix) ~= nil then
+				Table.ForEach(paths, function(currentPath: string)
+					local tempSplit = string.split(currentPath, "/")
+					local backtrace = table.concat(tempSplit, "/", 1, #tempSplit - 1)
+					local parent = getDeepestInstance(backtrace) :: roblox.Instance
+					local succeeded = syncWithRobloxFromConfigLanguage(parent, currentPath)
+
+					if not succeeded and Settings.showDebugMessages then
+						print(string.format("Ignored a '%s' file at path '%s'", fileSuffix, currentPath))
+					end
+				end)
+			end
 		end)
 	end
 

@@ -63,7 +63,7 @@ end
 
 local function generateObby(Settings: quickTypes.settings, game: roblox.DataModel): roblox.DataModel
 	local perDifficulty = math.floor(Settings.sections / #Settings.difficulties)
-	local start = game:GetService("Workspace"):FindFirstChildWhichIsA("SpawnLocation")
+	local lastModel = game:GetService("Workspace"):FindFirstChildWhichIsA("SpawnLocation")
 	local models = roblox.deserializeModel(fs.readFile("./assets/Assets.rbxm"))[1]
 
 	if not models then
@@ -94,12 +94,22 @@ local function generateObby(Settings: quickTypes.settings, game: roblox.DataMode
 			newModel.Name = tostring(difficulty * i)
 			newModel.Parent = game:GetService("Workspace")
 
-			-- The line below works for the first iteration then breaks for the rest.
-			newModel.PrimaryPart.CFrame = start.CFrame
-				* CFrame.new(0, start.Size.Y / 2, 0)
-				* CFrame.new(0, 0, -(newModel.PrimaryPart.Size.Z + start.Size.Z) / 2)
+			local endPart = lastModel
+			local handlePart = lastModel
 
-			start = newModel.End
+			if lastModel.ClassName ~= "SpawnLocation" then
+				endPart = lastModel.End
+				handlePart = lastModel.PrimaryPart
+			end
+
+			local newCFrame = endPart.CFrame
+				* CFrame.new(0, handlePart.Size.Y / 2, 0)
+				* CFrame.new(0, 0, -(newModel.PrimaryPart.Size.Z + handlePart.Size.Z) / 2)
+
+			newModel.PrimaryPart.CFrame = newCFrame
+			-- print(endPart.Parent, newCFrame)
+
+			lastModel = newModel
 		end
 	end
 

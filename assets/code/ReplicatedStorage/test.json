@@ -1,0 +1,23 @@
+{
+    "Class": "Folder",
+    "Name": "Cool Folder",
+    "Children": [
+        {
+            "Name": "Test",
+            "Class": "RemoteEvent"
+        },
+        {
+            "Name": "Something",
+            "Class": "RemoteFunction"
+        },
+        {
+            "Class": "Folder",
+            "Children": [
+                {
+                    "Class": "BindableEvent",
+                    "Name": "Somethign Client Based"
+                }
+            ]
+        }
+    ]
+}
