@@ -1,0 +1,18 @@
+{
+    "output": {
+        "fileName": "Obby",
+        "xmlKind": false
+    },
+    "difficulties": [
+        "Beginner"
+    ],
+    "Publish": {
+        "experienceId": 0,
+        "placeId": 0
+    },
+
+    "mode": "Obby",
+    "sections": 5,
+    "applyVersioningToPreventRegeneration": true,
+    "showDebugMessages": true
+}

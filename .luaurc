@@ -1,0 +1,11 @@
+{
+  "languageMode": "strict",
+  "lint": {
+    "*": true
+  },
+  "globals": [
+    "warn",
+    "game",
+    "script"
+  ]
+}
