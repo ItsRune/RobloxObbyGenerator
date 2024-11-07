@@ -39,5 +39,5 @@ If you import a module and the type checker is on your butt, you can use the mod
 
 ## Todos
 
-[ ] Fix issues with CFrames not working after the first iteration of the generator.
-[ ] Allow for publishing of the game
+[ ] Fix issues with CFrames not working after the first iteration of the generator. <br/>
+[ ] Allow for publishing of the game <br/>
